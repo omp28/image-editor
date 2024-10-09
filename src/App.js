@@ -92,17 +92,6 @@ function App() {
               className="w-full"
             />
           </div>
-          <div>
-            <label className="block mb-2 font-medium">Rotation</label>
-            <input
-              type="range"
-              min="0"
-              max="360"
-              value={rotation}
-              onChange={(e) => setRotation(e.target.value)}
-              className="w-full"
-            />
-          </div>
         </div>
         <button
           onClick={resetFilters}
