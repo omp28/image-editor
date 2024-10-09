@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./App.css";
+import { MdRotate90DegreesCcw } from "react-icons/md";
 
 function App() {
   const [brightness, setBrightness] = useState(100);
@@ -22,6 +23,17 @@ function App() {
     setInversion(0);
     setGrayscale(0);
     setRotation(0);
+  };
+
+  const rotateImage = () => {
+    setRotation((prevRotation) => (prevRotation + 90) % 360);
+  };
+
+  const handleRotationChange = (e) => {
+    const newRotation = parseInt(e.target.value, 10);
+    if (!isNaN(newRotation)) {
+      setRotation(newRotation % 360); // Ensure rotation is between 0 and 360
+    }
   };
 
   return (
@@ -92,10 +104,30 @@ function App() {
               className="w-full"
             />
           </div>
+
+          {/* Rotation Control */}
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={rotateImage}
+              className="bg-blue-500 text-white text-2xl py-2 px-4 rounded hover:bg-blue-600 transition"
+            >
+              <MdRotate90DegreesCcw />
+            </button>
+            <div className="flex items-center space-x-2">
+              <input
+                type="number"
+                value={rotation}
+                onChange={handleRotationChange}
+                className="border border-gray-300 rounded p-2 w-16"
+              />
+              <span>°</span>
+            </div>
+          </div>
         </div>
+
         <button
           onClick={resetFilters}
-          className="mt-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition"
+          className="mt-4 bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 transition"
         >
           Reset Filters
         </button>
