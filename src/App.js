@@ -62,7 +62,16 @@ export default function App() {
         setRotation={setRotation}
       />
       <div className="flex-1 flex flex-col">
-        <h1 className="text-3xl font-bold p-4 text-center">Image Editor</h1>
+        <div className="flex justify-center items-center my-4">
+          <img
+            src="/icon.webp"
+            alt="ImageMaster Logo"
+            className="h-14 w-14 rounded-2xl "
+          />
+
+          <h1 className="text-3xl font-bold pl-4  text-center">imageMaster</h1>
+        </div>
+
         <div className="flex-1 flex items-center justify-center">
           {selectedImage ? (
             <ImageEditor
