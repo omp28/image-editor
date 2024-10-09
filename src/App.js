@@ -1,10 +1,10 @@
 import React, { useState, useRef } from "react";
-import "./App.css";
+import { MdRotateRight, MdDownload, MdRefresh } from "react-icons/md";
 import ImageUploader from "./components/ImageUploader";
 import ImageEditor from "./components/ImageEditor";
-import RotateButton from "./components/RotateButton";
+import ToolBar from "./components/ToolBar";
 
-function App() {
+export default function App() {
   const [brightness, setBrightness] = useState(100);
   const [saturation, setSaturation] = useState(100);
   const [inversion, setInversion] = useState(0);
@@ -48,48 +48,57 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
-      <h1 className="text-3xl font-bold mb-6">Image Editor</h1>
-      <div className="bg-white p-4 rounded-lg shadow-lg max-w-lg w-full">
-        <ImageUploader onImageChange={setSelectedImage} />
-        {selectedImage && (
-          <>
+    <div className="min-h-screen bg-black text-white flex">
+      <ToolBar
+        brightness={brightness}
+        setBrightness={setBrightness}
+        saturation={saturation}
+        setSaturation={setSaturation}
+        inversion={inversion}
+        setInversion={setInversion}
+        grayscale={grayscale}
+        setGrayscale={setGrayscale}
+        rotation={rotation}
+        setRotation={setRotation}
+      />
+      <div className="flex-1 flex flex-col">
+        <h1 className="text-3xl font-bold p-4 text-center">Image Editor</h1>
+        <div className="flex-1 flex items-center justify-center">
+          {selectedImage ? (
             <ImageEditor
               selectedImage={selectedImage}
               brightness={brightness}
-              setBrightness={setBrightness}
               saturation={saturation}
-              setSaturation={setSaturation}
               inversion={inversion}
-              setInversion={setInversion}
               grayscale={grayscale}
-              setGrayscale={setGrayscale}
               rotation={rotation}
-              setRotation={setRotation}
             />
-            <RotateButton
-              rotateImage={() => setRotation((prev) => (prev + 90) % 360)}
-              rotation={rotation}
-              setRotation={setRotation}
-            />
-            <canvas ref={canvasRef} style={{ display: "none" }}></canvas>
-            <button
-              onClick={downloadEditedImage}
-              className="mt-4 bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition"
-            >
-              Download Image
-            </button>
-          </>
-        )}
-        <button
-          onClick={resetFilters}
-          className="mt-4 bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 transition"
-        >
-          Reset Filters
-        </button>
+          ) : (
+            <ImageUploader onImageChange={setSelectedImage} />
+          )}
+        </div>
+        <div className="p-4 flex justify-center space-x-4">
+          <button
+            onClick={() => setRotation((prev) => (prev + 90) % 360)}
+            className="bg-gray-800 text-white p-2 rounded-full hover:bg-gray-700 transition"
+          >
+            <MdRotateRight size={24} />
+          </button>
+          <button
+            onClick={downloadEditedImage}
+            className="bg-gray-800 text-white p-2 rounded-full hover:bg-gray-700 transition"
+          >
+            <MdDownload size={24} />
+          </button>
+          <button
+            onClick={resetFilters}
+            className="bg-gray-800 text-white p-2 rounded-full hover:bg-gray-700 transition"
+          >
+            <MdRefresh size={24} />
+          </button>
+        </div>
       </div>
+      <canvas ref={canvasRef} style={{ display: "none" }}></canvas>
     </div>
   );
 }
-
-export default App;
