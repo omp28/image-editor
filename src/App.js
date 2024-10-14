@@ -3,7 +3,7 @@ import { MdRotateRight, MdDownload, MdRefresh } from "react-icons/md";
 import ImageUploader from "./components/ImageUploader";
 import ImageEditor from "./components/ImageEditor";
 import ToolBar from "./components/ToolBar";
-import CompressImage from "./components/CompressImage";
+import imageCompression from "browser-image-compression";
 
 export default function App() {
   const [brightness, setBrightness] = useState(100);
@@ -12,6 +12,7 @@ export default function App() {
   const [grayscale, setGrayscale] = useState(0);
   const [rotation, setRotation] = useState(0);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [compressionProgress, setCompressionProgress] = useState(0);
   const canvasRef = useRef(null);
 
   const resetFilters = () => {
@@ -48,71 +49,112 @@ export default function App() {
     };
   };
 
+  const compressAndDownloadImage = async () => {
+    if (!selectedImage) return;
+
+    try {
+      setCompressionProgress(0);
+
+      const response = await fetch(selectedImage);
+      const blob = await response.blob();
+      const file = new File([blob], "image.jpg", { type: "image/jpeg" });
+
+      const options = {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 1920,
+        useWebWorker: true,
+      };
+
+      const actualCompressedBlobPromise = imageCompression(file, options);
+
+      let fakeProgress = 0;
+      const progressInterval = setInterval(() => {
+        if (fakeProgress < 95) {
+          fakeProgress += Math.random() * 5;
+          setCompressionProgress(Math.round(fakeProgress));
+        }
+      }, 100);
+
+      const compressedBlob = await actualCompressedBlobPromise;
+
+      setTimeout(() => {
+        clearInterval(progressInterval);
+        setCompressionProgress(100);
+
+        const compressedFileURL = URL.createObjectURL(compressedBlob);
+        const link = document.createElement("a");
+        link.href = compressedFileURL;
+        link.download = "compressed-image.jpg";
+        link.click();
+      }, 3000 - fakeProgress * 30);
+    } catch (error) {
+      console.error("Compression error:", error);
+    }
+  };
+
   return (
-    // <div className="min-h-screen bg-black text-white flex">
-    //   <ToolBar
-    //     brightness={brightness}
-    //     setBrightness={setBrightness}
-    //     saturation={saturation}
-    //     setSaturation={setSaturation}
-    //     inversion={inversion}
-    //     setInversion={setInversion}
-    //     grayscale={grayscale}
-    //     setGrayscale={setGrayscale}
-    //     rotation={rotation}
-    //     setRotation={setRotation}
-    //   />
-    //   <div className="flex-1 flex flex-col">
-    //     <div className="flex justify-center items-center my-4">
-    //       <img
-    //         src="/icon.webp"
-    //         alt="ImageMaster Logo"
-    //         className="h-14 w-14 rounded-2xl "
-    //       />
+    <div className="min-h-screen bg-black text-white flex">
+      <ToolBar
+        brightness={brightness}
+        setBrightness={setBrightness}
+        saturation={saturation}
+        setSaturation={setSaturation}
+        inversion={inversion}
+        setInversion={setInversion}
+        grayscale={grayscale}
+        setGrayscale={setGrayscale}
+        rotation={rotation}
+        setRotation={setRotation}
+        compressAndDownloadImage={compressAndDownloadImage}
+        compressionProgress={compressionProgress}
+      />
+      <div className="flex-1 flex flex-col">
+        <div className="flex justify-center items-center my-4">
+          <img
+            src="/icon.webp"
+            alt="ImageMaster Logo"
+            className="h-14 w-14 rounded-2xl "
+          />
 
-    //       <h1 className="text-3xl font-bold pl-4  text-center">imageMaster</h1>
-    //     </div>
+          <h1 className="text-3xl font-bold pl-4  text-center">imageMaster</h1>
+        </div>
 
-    //     <div className="flex-1 flex items-center justify-center">
-    //       {selectedImage ? (
-    //         <ImageEditor
-    //           selectedImage={selectedImage}
-    //           brightness={brightness}
-    //           saturation={saturation}
-    //           inversion={inversion}
-    //           grayscale={grayscale}
-    //           rotation={rotation}
-    //         />
-    //       ) : (
-    //         <ImageUploader onImageChange={setSelectedImage} />
-    //       )}
-    //     </div>
-    //     <div className="p-4 flex justify-center space-x-4">
-    //       <button
-    //         onClick={() => setRotation((prev) => (prev + 90) % 360)}
-    //         className="bg-gray-800 text-white p-2 rounded-full hover:bg-gray-700 transition"
-    //       >
-    //         <MdRotateRight size={24} />
-    //       </button>
-    //       <button
-    //         onClick={downloadEditedImage}
-    //         className="bg-gray-800 text-white p-2 rounded-full hover:bg-gray-700 transition"
-    //       >
-    //         <MdDownload size={24} />
-    //       </button>
-    //       <button
-    //         onClick={resetFilters}
-    //         className="bg-gray-800 text-white p-2 rounded-full hover:bg-gray-700 transition"
-    //       >
-    //         <MdRefresh size={24} />
-    //       </button>
-    //     </div>
-    //   </div>
-    //   <canvas ref={canvasRef} style={{ display: "none" }}></canvas>
-    // </div>
-    <div>
-      <h1>Image Compression</h1>
-      <CompressImage />
+        <div className="flex-1 flex items-center justify-center">
+          {selectedImage ? (
+            <ImageEditor
+              selectedImage={selectedImage}
+              brightness={brightness}
+              saturation={saturation}
+              inversion={inversion}
+              grayscale={grayscale}
+              rotation={rotation}
+            />
+          ) : (
+            <ImageUploader onImageChange={setSelectedImage} />
+          )}
+        </div>
+        <div className="p-4 flex justify-center space-x-4">
+          <button
+            onClick={() => setRotation((prev) => (prev + 90) % 360)}
+            className="bg-gray-800 text-white p-2 rounded-full hover:bg-gray-700 transition"
+          >
+            <MdRotateRight size={24} />
+          </button>
+          <button
+            onClick={downloadEditedImage}
+            className="bg-gray-800 text-white p-2 rounded-full hover:bg-gray-700 transition"
+          >
+            <MdDownload size={24} />
+          </button>
+          <button
+            onClick={resetFilters}
+            className="bg-gray-800 text-white p-2 rounded-full hover:bg-gray-700 transition"
+          >
+            <MdRefresh size={24} />
+          </button>
+        </div>
+      </div>
+      <canvas ref={canvasRef} style={{ display: "none" }}></canvas>
     </div>
   );
 }

@@ -4,6 +4,7 @@ import {
   MdColorLens,
   MdInvertColors,
   MdGradient,
+  MdCompress,
 } from "react-icons/md";
 import FilterSlider from "./FilterSlider";
 
@@ -18,6 +19,8 @@ export default function ToolBar({
   setGrayscale,
   rotation,
   setRotation,
+  compressAndDownloadImage,
+  compressionProgress,
 }) {
   return (
     <div className="w-64 bg-gray-900 p-4 space-y-6">
@@ -62,6 +65,26 @@ export default function ToolBar({
           className="bg-gray-800 text-white p-2 rounded w-full"
         />
       </div>
+
+      <button
+        onClick={compressAndDownloadImage}
+        className="bg-blue-500 text-white p-2 rounded w-full flex items-center justify-center space-x-2 hover:bg-blue-600"
+      >
+        <MdCompress size={24} />
+        <span>Compress & Download</span>
+      </button>
+
+      {compressionProgress > 0 && compressionProgress < 100 && (
+        <div className="mt-4">
+          <div className="relative w-full h-2 bg-gray-200 rounded">
+            <div
+              className="absolute top-0 left-0 h-2 bg-blue-500 rounded"
+              style={{ width: `${compressionProgress}%` }}
+            ></div>
+          </div>
+          <span className="text-sm text-gray-400">{compressionProgress}%</span>
+        </div>
+      )}
     </div>
   );
 }
