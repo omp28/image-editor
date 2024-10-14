@@ -3,6 +3,7 @@ import { MdRotateRight, MdDownload, MdRefresh } from "react-icons/md";
 import ImageUploader from "./components/ImageUploader";
 import ImageEditor from "./components/ImageEditor";
 import ToolBar from "./components/ToolBar";
+import CompressImage from "./components/CompressImage";
 
 export default function App() {
   const [brightness, setBrightness] = useState(100);
@@ -48,66 +49,70 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white flex">
-      <ToolBar
-        brightness={brightness}
-        setBrightness={setBrightness}
-        saturation={saturation}
-        setSaturation={setSaturation}
-        inversion={inversion}
-        setInversion={setInversion}
-        grayscale={grayscale}
-        setGrayscale={setGrayscale}
-        rotation={rotation}
-        setRotation={setRotation}
-      />
-      <div className="flex-1 flex flex-col">
-        <div className="flex justify-center items-center my-4">
-          <img
-            src="/icon.webp"
-            alt="ImageMaster Logo"
-            className="h-14 w-14 rounded-2xl "
-          />
+    // <div className="min-h-screen bg-black text-white flex">
+    //   <ToolBar
+    //     brightness={brightness}
+    //     setBrightness={setBrightness}
+    //     saturation={saturation}
+    //     setSaturation={setSaturation}
+    //     inversion={inversion}
+    //     setInversion={setInversion}
+    //     grayscale={grayscale}
+    //     setGrayscale={setGrayscale}
+    //     rotation={rotation}
+    //     setRotation={setRotation}
+    //   />
+    //   <div className="flex-1 flex flex-col">
+    //     <div className="flex justify-center items-center my-4">
+    //       <img
+    //         src="/icon.webp"
+    //         alt="ImageMaster Logo"
+    //         className="h-14 w-14 rounded-2xl "
+    //       />
 
-          <h1 className="text-3xl font-bold pl-4  text-center">imageMaster</h1>
-        </div>
+    //       <h1 className="text-3xl font-bold pl-4  text-center">imageMaster</h1>
+    //     </div>
 
-        <div className="flex-1 flex items-center justify-center">
-          {selectedImage ? (
-            <ImageEditor
-              selectedImage={selectedImage}
-              brightness={brightness}
-              saturation={saturation}
-              inversion={inversion}
-              grayscale={grayscale}
-              rotation={rotation}
-            />
-          ) : (
-            <ImageUploader onImageChange={setSelectedImage} />
-          )}
-        </div>
-        <div className="p-4 flex justify-center space-x-4">
-          <button
-            onClick={() => setRotation((prev) => (prev + 90) % 360)}
-            className="bg-gray-800 text-white p-2 rounded-full hover:bg-gray-700 transition"
-          >
-            <MdRotateRight size={24} />
-          </button>
-          <button
-            onClick={downloadEditedImage}
-            className="bg-gray-800 text-white p-2 rounded-full hover:bg-gray-700 transition"
-          >
-            <MdDownload size={24} />
-          </button>
-          <button
-            onClick={resetFilters}
-            className="bg-gray-800 text-white p-2 rounded-full hover:bg-gray-700 transition"
-          >
-            <MdRefresh size={24} />
-          </button>
-        </div>
-      </div>
-      <canvas ref={canvasRef} style={{ display: "none" }}></canvas>
+    //     <div className="flex-1 flex items-center justify-center">
+    //       {selectedImage ? (
+    //         <ImageEditor
+    //           selectedImage={selectedImage}
+    //           brightness={brightness}
+    //           saturation={saturation}
+    //           inversion={inversion}
+    //           grayscale={grayscale}
+    //           rotation={rotation}
+    //         />
+    //       ) : (
+    //         <ImageUploader onImageChange={setSelectedImage} />
+    //       )}
+    //     </div>
+    //     <div className="p-4 flex justify-center space-x-4">
+    //       <button
+    //         onClick={() => setRotation((prev) => (prev + 90) % 360)}
+    //         className="bg-gray-800 text-white p-2 rounded-full hover:bg-gray-700 transition"
+    //       >
+    //         <MdRotateRight size={24} />
+    //       </button>
+    //       <button
+    //         onClick={downloadEditedImage}
+    //         className="bg-gray-800 text-white p-2 rounded-full hover:bg-gray-700 transition"
+    //       >
+    //         <MdDownload size={24} />
+    //       </button>
+    //       <button
+    //         onClick={resetFilters}
+    //         className="bg-gray-800 text-white p-2 rounded-full hover:bg-gray-700 transition"
+    //       >
+    //         <MdRefresh size={24} />
+    //       </button>
+    //     </div>
+    //   </div>
+    //   <canvas ref={canvasRef} style={{ display: "none" }}></canvas>
+    // </div>
+    <div>
+      <h1>Image Compression</h1>
+      <CompressImage />
     </div>
   );
 }
