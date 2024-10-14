@@ -13,7 +13,13 @@ export default function App() {
   const [rotation, setRotation] = useState(0);
   const [selectedImage, setSelectedImage] = useState(null);
   const [compressionProgress, setCompressionProgress] = useState(0);
+  const [originalSize, setOriginalSize] = useState(null);
   const canvasRef = useRef(null);
+
+  const handleImageChange = (imageUrl, size) => {
+    setSelectedImage(imageUrl);
+    setOriginalSize(size);
+  };
 
   const resetFilters = () => {
     setBrightness(100);
@@ -49,7 +55,7 @@ export default function App() {
     };
   };
 
-  const compressAndDownloadImage = async () => {
+  const compressAndDownloadImage = async (compressionPercentage) => {
     if (!selectedImage) return;
 
     try {
@@ -59,34 +65,29 @@ export default function App() {
       const blob = await response.blob();
       const file = new File([blob], "image.jpg", { type: "image/jpeg" });
 
+      const originalFileSizeMB = file.size / 1024 / 1024;
+      setOriginalSize(originalFileSizeMB.toFixed(2));
+
+      const desiredFileSizeMB =
+        originalFileSizeMB * (compressionPercentage / 100);
+
       const options = {
-        maxSizeMB: 1,
-        maxWidthOrHeight: 1920,
+        maxSizeMB: desiredFileSizeMB,
         useWebWorker: true,
+        onProgress: (progress) => {
+          setCompressionProgress(Math.round(progress));
+        },
       };
 
-      const actualCompressedBlobPromise = imageCompression(file, options);
+      const compressedBlob = await imageCompression(file, options);
 
-      let fakeProgress = 0;
-      const progressInterval = setInterval(() => {
-        if (fakeProgress < 95) {
-          fakeProgress += Math.random() * 5;
-          setCompressionProgress(Math.round(fakeProgress));
-        }
-      }, 100);
+      const compressedFileURL = URL.createObjectURL(compressedBlob);
+      const link = document.createElement("a");
+      link.href = compressedFileURL;
+      link.download = "compressed-image.jpg";
+      link.click();
 
-      const compressedBlob = await actualCompressedBlobPromise;
-
-      setTimeout(() => {
-        clearInterval(progressInterval);
-        setCompressionProgress(100);
-
-        const compressedFileURL = URL.createObjectURL(compressedBlob);
-        const link = document.createElement("a");
-        link.href = compressedFileURL;
-        link.download = "compressed-image.jpg";
-        link.click();
-      }, 3000 - fakeProgress * 30);
+      setCompressionProgress(100);
     } catch (error) {
       console.error("Compression error:", error);
     }
@@ -107,6 +108,7 @@ export default function App() {
         setRotation={setRotation}
         compressAndDownloadImage={compressAndDownloadImage}
         compressionProgress={compressionProgress}
+        originalSize={originalSize}
       />
       <div className="flex-1 flex flex-col">
         <div className="flex justify-center items-center my-4">
@@ -130,7 +132,7 @@ export default function App() {
               rotation={rotation}
             />
           ) : (
-            <ImageUploader onImageChange={setSelectedImage} />
+            <ImageUploader onImageChange={handleImageChange} />
           )}
         </div>
         <div className="p-4 flex justify-center space-x-4">

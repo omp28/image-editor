@@ -7,7 +7,8 @@ export default function ImageUploader({ onImageChange }) {
     (acceptedFiles) => {
       if (acceptedFiles && acceptedFiles[0]) {
         const img = acceptedFiles[0];
-        onImageChange(URL.createObjectURL(img));
+        const fileSizeMB = (img.size / 1024 / 1024).toFixed(2);
+        onImageChange(URL.createObjectURL(img), fileSizeMB);
       }
     },
     [onImageChange]

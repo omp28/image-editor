@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   MdBrightness6,
   MdColorLens,
@@ -21,7 +21,23 @@ export default function ToolBar({
   setRotation,
   compressAndDownloadImage,
   compressionProgress,
+  originalSize,
 }) {
+  const [compressionPercentage, setCompressionPercentage] = useState(50);
+  const [estimatedSize, setEstimatedSize] = useState(null);
+
+  const handlePercentageChange = (percentage) => {
+    setCompressionPercentage(percentage);
+    if (originalSize) {
+      const estimated = (originalSize * (percentage / 100)).toFixed(2);
+      setEstimatedSize(estimated);
+    }
+  };
+
+  const handleCompressionClick = () => {
+    compressAndDownloadImage(compressionPercentage);
+  };
+
   return (
     <div className="w-64 bg-gray-900 p-4 space-y-6">
       <FilterSlider
@@ -66,9 +82,36 @@ export default function ToolBar({
         />
       </div>
 
+      <div className="mt-6">
+        <label className="block mb-2 font-medium text-white">
+          Compression Percentage
+        </label>
+        <input
+          type="number"
+          value={compressionPercentage}
+          onChange={(e) => handlePercentageChange(Number(e.target.value))}
+          min="1"
+          max="100"
+          className="bg-gray-800 text-white p-2 rounded w-full"
+        />
+      </div>
+
+      <div className="text-white mt-4">
+        {originalSize && (
+          <p>
+            Original Size: <strong>{originalSize} MB</strong>
+          </p>
+        )}
+        {estimatedSize && (
+          <p>
+            Estimated Compressed Size: <strong>{estimatedSize} MB</strong>
+          </p>
+        )}
+      </div>
+
       <button
-        onClick={compressAndDownloadImage}
-        className="bg-blue-500 text-white p-2 rounded w-full flex items-center justify-center space-x-2 hover:bg-blue-600"
+        onClick={handleCompressionClick}
+        className="bg-blue-500 text-white p-2 rounded w-full flex items-center justify-center space-x-2 hover:bg-blue-600 mt-4"
       >
         <MdCompress size={24} />
         <span>Compress & Download</span>
