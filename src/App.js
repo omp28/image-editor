@@ -14,6 +14,7 @@ export default function App() {
   const [selectedImage, setSelectedImage] = useState(null);
   const [compressionProgress, setCompressionProgress] = useState(0);
   const [originalSize, setOriginalSize] = useState(null);
+  const [format, setFormat] = useState("jpeg");
   const canvasRef = useRef(null);
 
   const handleImageChange = (imageUrl, size) => {
@@ -49,8 +50,9 @@ export default function App() {
       ctx.restore();
 
       const link = document.createElement("a");
-      link.href = canvas.toDataURL("image/jpeg");
-      link.download = "edited-image.jpg";
+
+      link.href = canvas.toDataURL(`image/${format}`);
+      link.download = `edited-image.${format}`;
       link.click();
     };
   };
@@ -63,7 +65,9 @@ export default function App() {
 
       const response = await fetch(selectedImage);
       const blob = await response.blob();
-      const file = new File([blob], "image.jpg", { type: "image/jpeg" });
+      const file = new File([blob], `image.${format}`, {
+        type: `image/${format}`,
+      });
 
       const originalFileSizeMB = file.size / 1024 / 1024;
       setOriginalSize(originalFileSizeMB.toFixed(2));
@@ -84,7 +88,7 @@ export default function App() {
       const compressedFileURL = URL.createObjectURL(compressedBlob);
       const link = document.createElement("a");
       link.href = compressedFileURL;
-      link.download = "compressed-image.jpg";
+      link.download = `compressed-image.${format}`;
       link.click();
 
       setCompressionProgress(100);
@@ -109,7 +113,10 @@ export default function App() {
         compressAndDownloadImage={compressAndDownloadImage}
         compressionProgress={compressionProgress}
         originalSize={originalSize}
+        format={format}
+        setFormat={setFormat}
       />
+
       <div className="flex-1 flex flex-col">
         <div className="flex justify-center items-center my-4">
           <img
@@ -142,6 +149,22 @@ export default function App() {
           >
             <MdRotateRight size={24} />
           </button>
+
+          <div className="space-x-2 flex items-center">
+            <label htmlFor="format">Export As: </label>
+            <select
+              id="format"
+              value={format}
+              onChange={(e) => setFormat(e.target.value)}
+              className="bg-gray-800 text-white p-2 rounded"
+            >
+              <option value="jpeg">JPEG</option>
+              <option value="png">PNG</option>
+              <option value="webp">WEBP</option>
+              <option value="gif">GIF</option>
+            </select>
+          </div>
+
           <button
             onClick={downloadEditedImage}
             className="bg-gray-800 text-white p-2 rounded-full hover:bg-gray-700 transition"
